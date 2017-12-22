@@ -1,0 +1,9 @@
+!.gitignore
+node_modules/
+product/
+logs/
+**/.DS_Store
+**/npm-debug.log
+server/common/settings.js
+server/common/model.js
+server/common/conf.js
