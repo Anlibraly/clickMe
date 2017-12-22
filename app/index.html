@@ -30,7 +30,7 @@
 		<script type="text/javascript" src="lib/common.js"></script>
 		<script type="text/javascript">
 		$(document).ready(function(){ 
-			if ($.cookie("louUser") == "true") { 
+			if ($.cookie("ckUser") == "true") { 
 				$("#remember").prop("checked", true); 
 				document.querySelector('input[type="text"]').value = $.cookie("username"); 
 				document.querySelector('input[type="password"]').value = $.cookie("password"); 
@@ -41,11 +41,11 @@
 				var password = document.querySelector('input[type="password"]').value; 
 				if(check(username) && check(password)){
 					if ($("#remember").prop("checked")) { 
-						$.cookie("louUser", "true", { expires: 7 }); 
+						$.cookie("ckUser", "true", { expires: 7 }); 
 						$.cookie("username", username, { expires: 7 }); 
 						$.cookie("password", password, { expires: 7 }); 
 					}else{ 
-						$.cookie("louUser", "false", { expire: -1 }); 
+						$.cookie("ckUser", "false", { expire: -1 }); 
 						$.cookie("username", "", { expires: -1 }); 
 						$.cookie("password", "", { expires: -1 }); 
 					} 
@@ -60,7 +60,12 @@
 			            dataType: "json",
 			            success: function(data){
 			            	if(data.code > 0){
-			            		window.location.href = _dirname + data.desc;
+
+								$.cookie('clickme-token', data.token, {expires: 1});
+
+								$.cookie('clickme-apiToken', data.apiToken, {expires: 1});
+
+			            		window.location.href = _dirname + data.path;
 			            	}else{
 			            		alert(data.desc);
 			            	}

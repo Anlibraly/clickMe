@@ -11,13 +11,13 @@ let conditional = require('koa-conditional-get');
 let staticServer = require('koa-static');
 let etag = require('koa-etag');
 let path = require('path');
+let conf = require('../../common/conf');
 let file = require('../../common/file');
 let msg = require('../../common/msg');
 let pmid = process.env.pm_id;
 let app = koa();
 let systemApi = koa();
 let systemRouter = router();
-let conf = require('../../common/conf');
 
 // filter apiToken from request
 let filterFieldFromReq = (that, field) => {
@@ -83,6 +83,8 @@ let apiServer = () => {
         })
         .use(function* (next) {
 
+            let except = /^\/system\/account/.test(this.url);
+
             let jwtGenerator = jwt({
                 secret: conf.apiTokenSecretKey,
                 getToken: function () {
@@ -99,8 +101,8 @@ let apiServer = () => {
             }).unless({
                 path: conf.apiTokenUnlessPath,
                 custom: function(){
-                    // except purview api
-                    return /^\/system\/account/.test(this.url);
+                    // except api
+                    return except;
                 }
             });
 
@@ -110,23 +112,35 @@ let apiServer = () => {
             // it's still would verify
             if (conf.apiTokenNeedVerify === 'true') {
 
-                let emptyGen = function* () { 
+                let isOver = false;
+
+                let emptySession = function* () { 
+
+                    if(!except && (!this.session.userid || this.session.userid < 0)) {
+
+                        isOver = true;
+
+                    }
 
                 };
 
-                let jwtVerify = jwtGenerator.call(this, emptyGen());
-
-                let isOver = false;
+                let jwtVerify = jwtGenerator.call(this, emptySession());
 
                 try {
 
                     let a = yield* jwtVerify;
 
-                    console.log('aaaa', a);
-
                 } catch (e) {
 
                     isOver = true;
+
+                }
+
+                if (!isOver) {
+
+                    yield next;
+
+                } else {
 
                     this.body = {
                         res: {
@@ -135,12 +149,6 @@ let apiServer = () => {
                             stack: e && e.stack
                         }
                     };
-
-                }
-
-                if (!isOver) {
-
-                    yield next;
 
                 }
 
