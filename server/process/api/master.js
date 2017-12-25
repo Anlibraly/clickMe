@@ -17,7 +17,9 @@ let app = koa();
 let systemApi = koa();
 let systemRouter = router();
 
-const HOUR = 60 * 60 * 1000;
+const NUM60 = 60;
+const NUM1000 = 1000;
+const HOUR = NUM60 * NUM60 * NUM1000;
 
 // filter apiToken from request
 let filterFieldFromReq = (that, field) => {
@@ -123,7 +125,7 @@ let apiServer = () => {
 
                     if (!except && (!self.session.userid || self.session.userid < 0)) {
 
-                        isOver = true;
+                        yield isOver = true;
 
                     }
 

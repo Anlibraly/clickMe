@@ -8,6 +8,7 @@ let staticServer = require('koa-static');
 let etag = require('koa-etag');
 let path = require('path');
 let msg = require('../../common/msg');
+let g = require('../../common/const');
 
 let pmid = process.env.pm_id;
 let app = koa();
@@ -56,7 +57,7 @@ let webServer = () => {
         .use(webRouter.routes())
         .use(webRouter.allowedMethods());
 
-    app.listen(8090);
+    app.listen(g.SERVER_PORT.WEB);
 
 };
 

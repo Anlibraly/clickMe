@@ -1,3 +1,4 @@
+let g = require('../../common/const');
 let msg = require('../../common/msg');
 let conf = require('../../common/conf');
 let jwt = require('koa-jwt');
@@ -148,7 +149,7 @@ if (pmid || pmid === 0) {
 
                     flush(name, io);
                     
-                }, +conf.rctimeout || 1000);
+                }, +conf.rctimeout || g.SOCKET_TIMEOUT);
 
                 res();
 

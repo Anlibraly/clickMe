@@ -1,26 +1,14 @@
 let conf = require('../../../common/conf');
 let msg = require('../../../common/msg');
-let _ = require('underscore');
+// let _ = require('underscore');
 let jwt = require('koa-jwt');
 let md5 = require('md5');
 
-let check = (v) => {
-    if (v != undefined && (v > 0 || v.length > 0)) {
-        return true;
-    }
-    return false;
-};
+let makeToken = (token, timestamp) => md5(`${token}${timestamp}`);
 
-let makeToken = (token, timestamp) => {
-    return md5(`${token}${timestamp}`);
-};
-
-let getThroughDataProc = (type, optype, sendData) => {
-    return msg.send(`data@${type}.${optype}`, sendData)
-        .then(({ result, res }) => {
-            return Promise.resolve(result);
-        });
-};
+let getThroughDataProc = (type, optype, sendData) =>
+    msg.send(`data@${type}.${optype}`, sendData)
+        .then(({result}) => Promise.resolve(result));
 
 module.exports = (router) => {
 
@@ -34,8 +22,10 @@ module.exports = (router) => {
 
             this.session.userip = ip;
 
-            this.body = {
-                result: { ip: ip },
+            yield this.body = {
+                result: {
+                    ip: ip
+                },
                 res: {
                     status: true
                 }
@@ -44,8 +34,11 @@ module.exports = (router) => {
         })
         .get('/account/getsession', function* () {
 
-            this.body = {
-                result: { lasttime: this.session.lasttime, id: this.session.userid },
+            yield this.body = {
+                result: {
+                    lasttime: this.session.lasttime,
+                    id: this.session.userid
+                },
                 res: {
                     status: true
                 }
@@ -53,13 +46,16 @@ module.exports = (router) => {
 
         })
         .get('/account/logout', function* () {
+
             this.session.userid = null;
             this.session.username = null;
             this.session.account = null;
 
-            this.redirect('/');
+            yield this.redirect('/');
+
         })
         .post('/account/login', function* () {
+
             yield Promise.resolve()
                 .then(() => getThroughDataProc('db', 'query', {
                     _key: 'user',
@@ -67,10 +63,12 @@ module.exports = (router) => {
                     password: this.request.body.password
                 }))
                 .then((result) => {
+
                     let hasResult = (result.list && result.list.length);
                     let user = null;
                     
                     if (hasResult && result.list[0]) {
+
                         user = result.list[0];
 
                         this.session.userid = user._id;
@@ -79,9 +77,13 @@ module.exports = (router) => {
                         this.session.lasttime = +new Date();
 
                         let apiToken = jwt.sign(
-                            {uid: user._id},
+                            {
+                                uid: user._id
+                            },
                             conf.apiTokenSecretKey,
-                            {expiresIn: +conf.apiTokenExpire}
+                            {
+                                expiresIn: +conf.apiTokenExpire
+                            }
                         );
 
                         let token = {
@@ -105,6 +107,7 @@ module.exports = (router) => {
                         };
 
                     }
+
                 })
                 .catch((err) => {
 
@@ -120,9 +123,10 @@ module.exports = (router) => {
 
         })
         .get('/admin/getcustom/:status/:sid', function* () {
+
             let qs = null;
 
-            if (this.params.status != undefined && this.params.status > 0) {
+            if (this.params.status !== undefined && this.params.status > 0) {
 
                 qs = {
                     _key: 'custom',
@@ -139,7 +143,7 @@ module.exports = (router) => {
 
             }
 
-            if (this.params.sid != undefined && this.params.sid > 0) {
+            if (this.params.sid !== undefined && this.params.sid > 0) {
 
                 qs.userid = +this.params.sid;
 
@@ -168,10 +172,12 @@ module.exports = (router) => {
 
         })
         .get('/admin/custom/:cid', function* () {
-            let customs, qs = {
-                _key: 'custom',
-                _id: this.params.cid
-            };
+            
+            let customs,
+                qs = {
+                    _key: 'custom',
+                    _id: this.params.cid
+                };
 
             yield Promise.resolve()
                 .then(() => getThroughDataProc('db', 'query', qs))
@@ -196,7 +202,7 @@ module.exports = (router) => {
                     });
 
                 })
-                .then((result) => {
+                .then(() => {
 
                     this.body = {
                         code: 1,
@@ -214,6 +220,7 @@ module.exports = (router) => {
                     };
 
                 });
+
         });
 
 };
