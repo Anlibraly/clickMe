@@ -7,7 +7,9 @@ let jwt = require('koa-jwt');
 let session = require('koa-session');
 let _ = require('underscore');
 let render = require('koa-ejs');
+let conditional = require('koa-conditional-get');
 let staticServer = require('koa-static');
+let etag = require('koa-etag');
 let path = require('path');
 let conf = require('../../common/conf');
 let file = require('../../common/file');
@@ -17,8 +19,6 @@ let app = koa();
 let systemApi = koa();
 let systemRouter = router();
 
-const HOUR = 60 * 60 * 1000;
-
 // filter apiToken from request
 let filterFieldFromReq = (that, field) => {
 
@@ -27,7 +27,6 @@ let filterFieldFromReq = (that, field) => {
     if (req.body[field]) {
 
         delete req.body[field];
-
     }
 
     if (req.query[field]) {
@@ -45,10 +44,7 @@ let apiServer = () => {
 
     app.listen(conf.apiPort);
 
-    let opts = {
-        maxAge: 2 * HOUR,
-        key: 'clickMe-session-2018'
-    };
+    let opts = { maxAge: 2 * 60 * 60 * 1000, key: 'clickMe-session-2018' };
 
     app.keys = ['clickMe-session-2016'];
 
@@ -56,12 +52,12 @@ let apiServer = () => {
 
     app.use(staticServer(path.join(__dirname, '../../../../product/app/')));
 
-    app.on('error', (err) => {
+    app.on('error', function (err, ctx) {
 
         console.log(err);
 
     });
-
+    
     render(app, {
         root: path.join(__dirname, '../../../../product/app/'),
         layout: '__layout',
@@ -87,10 +83,8 @@ let apiServer = () => {
         })
         .use(function* (next) {
 
-            let except = /^\/system\/account|\/product\/app/.test(this.url);
+            let except = /^\/system\/account/.test(this.url);
 
-            console.log(except, this.url);
-            
             let jwtGenerator = jwt({
                 secret: conf.apiTokenSecretKey,
                 getToken: function () {
@@ -106,22 +100,23 @@ let apiServer = () => {
 
             }).unless({
                 path: conf.apiTokenUnlessPath,
-                custom: () => (except)
+                custom: function(){
+                    // except api
+                    return except;
+                }
             });
 
             // jwt has `passthrough` attr if don't need to verify
             // why here to judge is performance consider
-            // because even though passthrough is true,
+            // because even though passthrough is true, 
             // it's still would verify
             if (conf.apiTokenNeedVerify === 'true') {
 
-                let isOver = false,
-                    errors = {},
-                    self = this;
+                let isOver = false;
 
-                let emptySession = function* () {
+                let emptySession = function* () { 
 
-                    if (!except && (!self.session.userid || self.session.userid < 0)) {
+                    if(!except && (!this.session.userid || this.session.userid < 0)) {
 
                         isOver = true;
 
@@ -133,13 +128,11 @@ let apiServer = () => {
 
                 try {
 
-                    yield* jwtVerify;
+                    let a = yield* jwtVerify;
 
                 } catch (e) {
 
                     isOver = true;
-
-                    errors = e;
 
                 }
 
@@ -153,7 +146,7 @@ let apiServer = () => {
                         res: {
                             status: false,
                             msg: '401 Authorization failed',
-                            stack: errors && errors.stack
+                            stack: e && e.stack
                         }
                     };
 
@@ -186,21 +179,15 @@ let apiServer = () => {
                 };
 
             }
-
         })
         .use(mount('/system', systemApi));
-
 };
 
 let mountSystemApi = () => {
 
     file.recurse('./product/server/process/api/system/', (abspath, rootdir, subdir, filename) => {
 
-        if (!/\.js$/.test(filename)) {
-            
-            return;
-
-        }
+        if (!/\.js$/.test(filename)) return;
 
         let fn = require(`./system/${filename}`);
 

@@ -44,6 +44,10 @@ let buildAppScript = (name, src) =>
     gulp.src(src)
         .pipe( gulp.dest(`product/app/`) );
 
+let buildHtmlScript = (name, src) =>
+    gulp.src(src)
+        .pipe( gulp.dest(`product/app/`) );
+
 let buildTestScript = (name, src) =>
     gulp.src(src)
         .pipe( eslint() )
@@ -70,13 +74,19 @@ let gulpTasks = {
         
     },
 
+    buildHtml : () => {
+        
+        buildHtmlScript('front', ['./*.html']);
+        
+    },
+
     buildTest : () => {
 
         buildTestScript('test', ['test/*.js']);
 
     },
 
-    build : ['buildSrc', 'buildApp'],
+    build : ['buildSrc', 'buildHtml'],
 
     watch : () => {
 

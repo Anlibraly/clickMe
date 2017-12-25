@@ -6,30 +6,36 @@ let pmid = process.env.pm_id;
 let io;
 
 let socketAllow = ['db', 'store', 'cache'];
-let cnt = 0;
 // ================================================================================
 // Socket Service
 // ================================================================================
 let socketReq = (req, socket) => {
-    let key = '', type = '';
+
+    let key = '',
+        type = '';
     let target = req.target || '';
     let reqId = req.id || '';
     let queryObj = {};
     let serviceType = 'data';
 
     if (req.query) {
+
         type = 'query';
         key = req.query._key;
         queryObj = req.query;
+
     } else if (req.save) {
+
         type = 'save';
         key = req.save._key;
         queryObj = req.save;
+
     }
 
     // check allow target
     if (socketAllow.indexOf(target) === -1
         || _.isEmpty(key)) {
+
         socket.emit(`res_${reqId}`, {
             res: {
                 status: false,
@@ -37,96 +43,159 @@ let socketReq = (req, socket) => {
             }
         });
         console.error(`Socket: [${type}] ${target}@${key} arguments error.`);
+
         return;
+
     }
 
     // op type, query or save, query will redirect to qdata
     msg.send(`${serviceType}@${target}.${type}`, queryObj)
         .then((result) => {
+
             socket.emit(`res_${reqId}`, result);
+
         });
+
 };
 
 let socketServer = () => {
+
     io.on('connection', (socket) => {
+
         socket.on('req', (req) => {
+
             let pass = true;
 
             if (conf.apiTokenNeedVerify === 'true') {
+
                 if (!req.apiToken) {
+
                     pass = false;
+
                 } else {
+
                     try {
+
                         // should like { uid: [uid], iat: 1470116394, exp: 1470202794 }
                         pass = jwt.verify(req.apiToken, conf.apiTokenSecretKey, {});
                         // attach msg to xmsg log
                         let entity = req.query || req.save;
+
                         entity._attach = `table [${entity._key}], (UID: ${pass.uid})`;
+
                     } catch (e) {
+
                         console.warn(`Socket: ${e.message}\n${e.stack}`);
                         pass = false;
+
                     }
+
                 }
 
             }
 
             if (pass) {
+
                 socketReq(req, socket);
+
             } else {
+
                 socket.emit(`res_${req.id || ''}`, {
                     res: {
                         status: false,
                         msg: '401 Authorization failed'
                     }
                 });
+
             }
+
         });
+
     });
+
 };
 
 let timers = {};
-function flush(key, io) {
-    io.sockets.emit('RC', key);
+
+let flush = (key, IO) => {
+
+    IO.sockets.emit('RC', key);
     timers[key] = null;
-}
+
+};
+
 // ================================================================================
 // Socket / server
 // ================================================================================
-(pmid || pmid === 0) && Promise.resolve()
+if (pmid || pmid === 0) {
+
+    Promise.resolve()
     .then(() => (io = require('socket.io')(+conf.socketPort + Number(pmid))))
     .then(() => {
+
         msg.spawnSocket('socket', pmid, {
+
             remoteChange: (name, res) => {
+
                 // io.sockets.emit('RC', name);
-                timers[name] && clearTimeout(timers[name]);
+                if (timers[name]) {
+
+                    clearTimeout(timers[name]);
+
+                }
+                
                 timers[name] = setTimeout(() => {
+
                     flush(name, io);
+                    
                 }, +conf.rctimeout || 1000);
 
                 res();
+
             },
             confChange: () => {
+
                 io.sockets.emit('confChange', conf.toClientConf(conf._originConf));
+
             },
-            remoteNotice: (msg) => {
-                io.sockets.emit('remoteNotice', msg);
+            remoteNotice: (msg0) => {
+
+                io.sockets.emit('remoteNotice', msg0);
+
             },
             liveCheck: (data, res) => {
+
                 io.sockets.emit('liveCheck', +new Date());
                 res();
+
             },
             remoteLogoutUser: (uid, res) => {
+
                 io.sockets.emit('remoteLogoutUser', uid);
                 res();
+
             },
-            wmsRenderModule: ({ token, dataJson, mo }, res) => {
+            wmsRenderModule: ({
+                token,
+                dataJson,
+                mo
+            }, res) => {
+
                 io.sockets.emit(`wms_${token}_module`, JSON.stringify({
                     dataJson,
                     mo
                 }));
                 res();
+
             },
-            wmsRenderPage: ({ token, modules, page, po, app }, res) => {
+            wmsRenderPage: ({
+                token,
+                modules,
+                page,
+                po,
+                app
+            }, res) => {
+
                 io.sockets.emit(`wms_${token}_page`, JSON.stringify({
                     modules,
                     page,
@@ -134,16 +203,28 @@ function flush(key, io) {
                     po
                 }));
                 res();
+
             },
-            wmsPackApp: ({ token, pages, ao, app }, res) => {
+            wmsPackApp: ({
+                token,
+                pages,
+                ao,
+                app
+            }, res) => {
+                
                 io.sockets.emit(`wms_${token}_packApp`, JSON.stringify({
                     pages,
                     app,
                     ao
                 }));
                 res();
+
             }
+
         });
+
     })
     .then(() => socketServer())
     .catch((err) => console.error(`Socket: ${err.message}\n${err.stack}`));
+    
+}
