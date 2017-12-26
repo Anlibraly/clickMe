@@ -52,11 +52,15 @@ let apiServer = () => {
         key: 'clickMe-session-2018'
     };
 
+    let staticSer = staticServer(path.join(__dirname, '../../../../product/app/'));
+
     app.keys = ['clickMe-session-2016'];
 
     app.use(session(opts, app));
 
-    app.use(staticServer(path.join(__dirname, '../../../../product/app/')));
+    app.use(staticSer);
+
+    app.use(mount('/product/app', staticSer));
 
     app.on('error', (err) => {
 
@@ -89,7 +93,7 @@ let apiServer = () => {
         })
         .use(function* (next) {
 
-            let except = /^\/system\/account|\/product\/app/.test(this.url);
+            let except = !(/^\/api/.test(this.url)) || /^\/api\/login/.test(this.url);
 
             console.log(except, this.url);
             
@@ -107,7 +111,6 @@ let apiServer = () => {
                 }
 
             }).unless({
-                path: conf.apiTokenUnlessPath,
                 custom: () => (except)
             });
 
@@ -190,7 +193,7 @@ let apiServer = () => {
             }
 
         })
-        .use(mount('/system', systemApi));
+        .use(mount('/api', systemApi));
 
 };
 
