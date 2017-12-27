@@ -1,16 +1,15 @@
 import axios from 'axios';
 import g from '../assets/const';
-import {Promise} from 'core-js/library/web/timers';
 
 let responseCB = res => {
 
     if (res.status === g.HTTP_SUC_CODE) {
 
-        return Promise.resolve(res.res);
+        return res.res;
 
     }
 
-    return Promise.resolve([]);
+    return [];
 
 };
 
@@ -28,29 +27,16 @@ export default {
     fetchRoomList: () =>
         axios.get('/api/room/list')
             .then((res) => responseCB(res)),
-    login: ({username, password}) =>
+    login: ({commit}, {username, password}) =>
         axios.post('/api/account/login', {
             username,
             password
-        }).then((res) => {
-
-            if (res.code > 0) {
-
-                this.$cookie.set('clickme-token', res.token, {
-                    expires: '4h'
-                });
-
-                this.$cookie.set('clickme-apiToken', res.apiToken, {
-                    expires: '4h'
-                });
-
-                this.$store.state.user = res.token;
-
-                return Promise.resolve(true);
-
-            }
-
-            return Promise.resolve(false);
+        })
+        .then((res) => {
+            
+            commit('LOGIN_SUC', res);
+            
+            return res.data;
 
         })
 

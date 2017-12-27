@@ -93,7 +93,7 @@ let apiServer = () => {
         })
         .use(function* (next) {
 
-            let except = !(/^\/api/.test(this.url)) || /^\/api\/login/.test(this.url);
+            let except = !(/^\/api/.test(this.url)) || /^\/api\/account/.test(this.url);
 
             console.log(except, this.url);
             

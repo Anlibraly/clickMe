@@ -16,7 +16,7 @@ const SERVER_PORT = {
 };
 
 const SOCKET_PORT = 9000;
-const SOCKET_TIMEOUT = 1000;
+const SOCKET_TIMEOUT = 3000;
 const SOCKET_SEND_WAIT = 50;
 
 module.exports = {

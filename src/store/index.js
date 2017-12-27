@@ -1,20 +1,21 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import VueCookie from 'vue-cookie';
-import apis from './apis';
-import methods from './methods';
+import actions from './actions';
+import mutations from './mutations';
 
 Vue.use(Vuex);
-Vue.use(VueCookie);
 
 const store = new Vuex.Store({
     state: {
         user: null,
         nowRoom: null,
-        conversation: []
+        conversation: [],
+        cookies: {},
+        socket: null,
+        messages: []
     },
-    apis,
-    methods
+    actions,
+    mutations
 });
 
 export default store;

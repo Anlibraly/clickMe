@@ -112,6 +112,15 @@ let socketServer = () => {
 
         });
 
+        socket.on('room', (req) => {
+
+            io.sockets.emit('intoRoom', {
+                name: req.name,
+                time: +new Date()
+            });
+
+        });
+
     });
 
 };
@@ -223,6 +232,12 @@ if (pmid || pmid === 0) {
             }
 
         });
+
+        setInterval(() => {
+
+            io.sockets.emit('reward', 'you win a reward!!');
+
+        }, g.SOCKET_TIMEOUT);
 
     })
     .then(() => socketServer())

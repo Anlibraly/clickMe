@@ -5,10 +5,10 @@
                 <el-col :span="8"  :offset="8" >
                     <el-tooltip :disabled="disabled" :content="errorTip" placement="bottom-start" effect="light" >
                         <el-input placeholder="请输入用户名" v-model="username" type="text"></el-input>
-                        <el-input placeholder="请输入密码" v-model="password" type="password"></el-input>
-                        <template slot="append" ></template>
-                        <el-button @click="login" > 登录</el-button>
                     </el-tooltip>
+					<el-input placeholder="请输入密码" v-model="password" type="password"></el-input>
+					<template slot="append" ></template>
+					<el-button @click="login" > 登录</el-button>
                 </el-col>
             </el-row>
         </div>
@@ -16,6 +16,8 @@
 </template>
 
 <script>
+import _ 		from 'underscore';
+
 export default {
 	name: "login",
 	data: {
@@ -44,16 +46,33 @@ export default {
 				this.$store.dispatch('login', {
 					username: this.username,
 					password: this.password
-				}).then((res) => {
-				if (res) this.$router.replace("/room");
-				else this.setTip('密码错误');
-				});				
+				})
+				.then((data) => {
+
+					if (data.code > 0) {
+
+						this.$cookie.set('clickme-token', JSON.stringify(data.token), {
+							expidata: '4h'
+						});
+
+						this.$cookie.set('clickme-apiToken', JSON.stringify(data.apiToken), {
+							expidata: '4h'
+						});
+
+						this.$router.replace("/room");
+					}
+
+				});			
 			} else {
 				this.setTip('用户名密码不能为空');
 			}
 		}
 	},
 	created () { // 进入该界面之后 如果已登录 跳转
+		this.$store.state.socket.emit('room', {
+			name: `user_${+new Date()}`
+		});
+		
 		if (this.$store.state.user) {
 			this.$router.replace("/room");
 		}
@@ -65,7 +84,7 @@ export default {
 	#login
 		width: 100%
 		height: 100%
-		background: url(../../assets/logo.png) no-repeat
+		background: #666666
 		background-size: 100% 100%
 		background-attachment: fixed
 		#login-input
