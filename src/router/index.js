@@ -5,7 +5,6 @@ import roomList from '../components/room/list';
 // import Management from '../components/main/management/Management';
 // import Timeline from '../components/main/time_show/Timeline';
 // import TimeSlide from '../components/main/time_show/TimeSlide';
-import store from '../store';
 
 Vue.use(Router);
 
@@ -34,10 +33,8 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
 
-    console.log(store.state);
-
     // 登录验证
-    if (!to.path.startsWith('/login') && !store.state.user) {
+    if (!to.path.startsWith('/login') && !Vue.cookie.get('clickme-apiToken')) {
 
         next('/login');
 

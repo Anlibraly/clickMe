@@ -55,8 +55,12 @@ export default {
 							expidata: '4h'
 						});
 
-						this.$cookie.set('clickme-apiToken', JSON.stringify(data.apiToken), {
+						this.$cookie.set('clickme-apiToken', data.apiToken, {
 							expidata: '4h'
+						});
+
+						this.$store.state.socket.emit('room', {
+							name: this.username
 						});
 
 						this.$router.replace("/room");
@@ -69,11 +73,7 @@ export default {
 		}
 	},
 	created () { // 进入该界面之后 如果已登录 跳转
-		this.$store.state.socket.emit('room', {
-			name: `user_${+new Date()}`
-		});
-		
-		if (this.$store.state.user) {
+		if (this.$cookie.get('clickme-apiToken')) {
 			this.$router.replace("/room");
 		}
 	}

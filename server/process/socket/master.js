@@ -233,11 +233,11 @@ if (pmid || pmid === 0) {
 
         });
 
-        setInterval(() => {
+        // setInterval(() => {
 
-            io.sockets.emit('reward', 'you win a reward!!');
+        //     io.sockets.emit('reward', 'you win a reward!!');
 
-        }, g.SOCKET_TIMEOUT);
+        // }, g.SOCKET_TIMEOUT);
 
     })
     .then(() => socketServer())

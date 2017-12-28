@@ -12,7 +12,14 @@ export default {
     return {
       msg: 'Welcome to ClickMe'
     }
-  }
+  },
+	created () { // 进入该界面之后 如果已登录 跳转
+		if (this.$cookie.get('clickme-apiToken') === 1) {
+
+      this.$router.replace("/room");
+
+		}
+	}
 }
 </script>
 

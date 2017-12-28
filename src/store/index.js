@@ -7,12 +7,13 @@ Vue.use(Vuex);
 
 const store = new Vuex.Store({
     state: {
-        user: null,
+        login: null,
         nowRoom: null,
         conversation: [],
         cookies: {},
         socket: null,
-        messages: []
+        messages: [],
+        user: null
     },
     actions,
     mutations

@@ -54,7 +54,7 @@ let apiServer = () => {
 
     let staticSer = staticServer(path.join(__dirname, '../../../../product/app/'));
 
-    app.keys = ['clickMe-session-2016'];
+    app.keys = ['clickMe-session-2018'];
 
     app.use(session(opts, app));
 
@@ -90,13 +90,28 @@ let apiServer = () => {
 
             this.response.set('Access-Control-Allow-Origin', conf.serverAddress.replace(/\/$/, ''));
 
+            this.response.set('Access-Control-Allow-Credentialstrue', true);
+
+        })
+        .use(function* (next) {
+
+            let redirectRexp = /^\/room|^\/mine|^\/login/;
+            
+            if (redirectRexp.test(this.url)) {
+
+                this.redirect('/');
+
+            }
+
+            yield next;
+
         })
         .use(function* (next) {
 
             let except = !(/^\/api/.test(this.url)) || /^\/api\/account/.test(this.url);
 
             console.log(except, this.url);
-            
+
             let jwtGenerator = jwt({
                 secret: conf.apiTokenSecretKey,
                 getToken: function () {
@@ -202,7 +217,7 @@ let mountSystemApi = () => {
     file.recurse('./product/server/process/api/system/', (abspath, rootdir, subdir, filename) => {
 
         if (!/\.js$/.test(filename)) {
-            
+
             return;
 
         }

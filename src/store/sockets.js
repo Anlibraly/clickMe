@@ -9,7 +9,7 @@ let connect = () => {
     
     socket.on('connect', () => {
     
-        console.log('\nsocket connect\n');
+        console.log('\nconnect\n');
     
     });
     
