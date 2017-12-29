@@ -1,35 +1,39 @@
 <template>
-  <div id="app">
-      <h1>{{ msg }}</h1>
-      <router-view></router-view>
-  </div>
+<div id="roomlist">
+  <ul
+    v-infinite-scroll="loadMore"
+    infinite-scroll-disabled="loading"
+    infinite-scroll-distance="100">
+    <li v-for="item in list"
+        v-bind:key="item">{{ item }}</li>
+  </ul>
+</div>
 </template>
 
 <script>
 export default {
-  name: 'app',
-  data () {
+  name: 'roomlist',
+  data() {
     return {
-      msg: 'Welcome to ClickMe'
+      list: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14],
+      loading: false
     }
+  },
+  methods: {
+    loadMore () {
+      this.loading = true;
+      setTimeout(() => {
+        let last = this.list[this.list.length - 1];
+        for (let i = 1; i <= 10; i++) {
+          this.list.push(last + i);
+        }
+        this.loading = false;
+      }, 500);
+    }    
   }
 }
 </script>
 
 <style lang="sass">
-    html, body, #app
-        width: 100%
-        height: 100%
-        position: absolute
-        top: 0
-        left: 0
-        padding: 0
-        margin: 0
-        overflow-x: hidden
-        background-color: #ffffff
-    .fade-enter-active, .fade-leave-active
-        transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0)
-    .fade-enter, .fade-leave-active
-        transform: scale(1.2)
-        opacity: 0
+
 </style>

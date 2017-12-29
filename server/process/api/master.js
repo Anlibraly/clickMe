@@ -110,8 +110,6 @@ let apiServer = () => {
 
             let except = !(/^\/api/.test(this.url)) || /^\/api\/account/.test(this.url);
 
-            console.log(except, this.url);
-
             let jwtGenerator = jwt({
                 secret: conf.apiTokenSecretKey,
                 getToken: function () {

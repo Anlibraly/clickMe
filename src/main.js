@@ -1,6 +1,7 @@
 import Vue from 'vue';
-import ElementUI from 'element-ui';
-import 'element-ui/lib/theme-chalk/index.css';
+import MintUI from 'mint-ui';
+import './assets/reset.css';
+import 'mint-ui/lib/style.css';
 import App from './App';
 import router from './router';
 import store from './store';
@@ -8,7 +9,7 @@ import VueCookie from 'vue-cookie';
 import sockets from './store/sockets';
 
 Vue.use(VueCookie);
-Vue.use(ElementUI);
+Vue.use(MintUI);
 
 let socket = sockets.connect();
 

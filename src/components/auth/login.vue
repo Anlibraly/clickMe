@@ -1,30 +1,20 @@
 <template>
-    <div id="login">
-        <div id="login-input">
-            <el-row :gutter="20" >
-                <el-col :span="8"  :offset="8" >
-                    <el-tooltip :disabled="disabled" :content="errorTip" placement="bottom-start" effect="light" >
-                        <el-input placeholder="请输入用户名" v-model="username" type="text"></el-input>
-                    </el-tooltip>
-					<el-input placeholder="请输入密码" v-model="password" type="password"></el-input>
-					<template slot="append" ></template>
-					<el-button @click="login" > 登录</el-button>
-                </el-col>
-            </el-row>
-        </div>
+    <div id="login" style="text-align:center;">
+		<mt-field label="用户名" placeholder="请输入用户名" v-model="username"></mt-field>
+		<mt-field label="密码" placeholder="请输入密码" v-model="password" type="password"></mt-field>
+		<mt-button type="primary" @click="login">登录</mt-button>
     </div>
 </template>
 
 <script>
-import _ 		from 'underscore';
+import _ 			from 'underscore';
+import { Toast } 	from 'mint-ui';
 
 export default {
 	name: "login",
 	data: {
-		password: '',
 		username: '',
-		disabled: true,
-		errorTip: ''
+		password: ''
 	},
 	methods: {
 		check (v) {
@@ -32,14 +22,6 @@ export default {
 				return true;
 			}
 			return false;
-		},
-		setTip (tip) { // 消息提示，1.5秒后自动关闭
-			this.errorTip = tip;
-			this.disabled = false;
-			setTimeout(() => {
-				this.disabled = true;
-				this.errorTip = '';
-			}, 1500);
 		},
 		login () { 
 			if(this.check(this.username) && this.check(this.password)) {
@@ -68,7 +50,11 @@ export default {
 
 				});			
 			} else {
-				this.setTip('用户名密码不能为空');
+				Toast({
+					message: '用户名密码不能为空',
+					position: 'bottom',
+					duration: 3000
+				});
 			}
 		}
 	},
@@ -81,15 +67,5 @@ export default {
 </script>
 
 <style lang="sass">
-	#login
-		width: 100%
-		height: 100%
-		background: #666666
-		background-size: 100% 100%
-		background-attachment: fixed
-		#login-input
-			position: absolute
-			width: 100%
-			height: 30px
-			top: calc(50% - 15px)
+
 </style>
