@@ -4,7 +4,7 @@
         <mt-button v-link="'/'" icon="back" slot="left">返回</mt-button>
         <mt-button icon="more" slot="right"></mt-button>
       </mt-header>
-      <router-view></router-view>
+      <router-view id="router"></router-view>
   </div>
 </template>
 
@@ -27,5 +27,6 @@ export default {
 </script>
 
 <style lang="sass">
-
+	#router
+		margin-top: 0.6rem;
 </style>
