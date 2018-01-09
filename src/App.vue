@@ -17,7 +17,9 @@ export default {
     }
   },
 	created () { // 进入该界面之后 如果已登录 跳转
-		if (this.$cookie.get('clickme-apiToken') === 1) {
+		if (this.$cookie.get('clickme-apiToken')) {
+
+      this.$store.state.token = this.$cookie.get('clickme-apiToken');
 
       this.$router.replace("/room");
 

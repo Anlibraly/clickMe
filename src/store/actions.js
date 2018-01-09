@@ -5,11 +5,11 @@ let responseCB = res => {
 
     if (res.status === g.HTTP_SUC_CODE) {
 
-        return res.res;
+        return res.data;
 
     }
 
-    return [];
+    return {};
 
 };
 
@@ -24,9 +24,12 @@ export default {
         axios.get(`/api/room/fetch?id=${room._id}`)
             .then((res) => responseCB(res)),
     // 获取房间列表
-    fetchRoomList: () =>
-        axios.get('/api/room/list')
-            .then((res) => responseCB(res)),
+    fetchRoomList: ({commit}, {page = 0, apiToken}) =>
+        axios.post('/api/room/list', {
+            page,
+            apiToken
+        })
+        .then((res) => responseCB(res)),
     login: ({commit}, {username, password}) =>
         axios.post('/api/account/login', {
             username,

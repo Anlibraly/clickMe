@@ -120,6 +120,12 @@ Action.db.query = (req = {}, res) => {
 
     include = helper.parseInclude(include);
 
+    if (page1 <= 0) {
+
+        page1 = 1;
+    
+    }
+
     let query = {
         key,
         size: size1,

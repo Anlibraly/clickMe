@@ -167,8 +167,6 @@ rules:
     - error
   no-array-constructor:
     - error
-  no-bitwise:
-    - error
   no-continue:
     - error
   no-inline-comments:

@@ -3,14 +3,13 @@
         <ul
             v-infinite-scroll="loadMore"
             infinite-scroll-disabled="loading"
-            infinite-scroll-distance="100">
+            infinite-scroll-distance="10">
             <li v-for="rdata in list"
                 v-bind:key="rdata">
                     <div class="title">{{rdata.name}}</div>
                     <img v-bind:src="rdata.thumb"/>
                     <div class="cblock">
-                        <span v-for="cell in rdata.awards"
-                                v-bind:key="cell">{{cell}}</span>
+                        <cell v-bind:cells="rdata.awards"></cell>
                     </div>
                     <div class="note">
                         <span>累计中{{rdata.totle}}套</span>
@@ -22,12 +21,17 @@
 </template>
 
 <script>
+import cell from './cell';
 export default {
     name: 'room-cell',
     props: [
         'list',
-        'loadMore'
+        'loadMore',
+        'loading'
     ],
+    components: {
+        cell
+    },
     data() {
         return {
 
@@ -48,7 +52,6 @@ export default {
             margin: 0 0.2rem;
             width: 6rem;
             li
-                background: #bbbbbb;
                 width: 2.76rem;
                 display: inline-block;
                 margin: 0.1rem;

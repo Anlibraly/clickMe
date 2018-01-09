@@ -34,11 +34,11 @@ export default {
 					if (data.code > 0) {
 
 						this.$cookie.set('clickme-token', JSON.stringify(data.token), {
-							expidata: '4h'
+							expires: '4h'
 						});
 
 						this.$cookie.set('clickme-apiToken', data.apiToken, {
-							expidata: '4h'
+							expires: '4h'
 						});
 
 						this.$store.state.socket.emit('room', {

@@ -7,66 +7,56 @@
 
 <script>
 import RoomCell from './RoomCell';
+import _ from 'underscore';
 
 export default {
   name: 'roomlist',
   data() {
     return {
-      list: [{
-        name: 'iPHONE6',
-        thumb: 'https://diycode.b0.upaiyun.com/photo/2017/fc7727985fd40e43f6b5bd6192dc23b7.jpeg',
-        awards: [1,1,1,0,0],
-        totle: 102,
-        pnum: 11
-      },{
-        name: 'iPHONE6',
-        thumb: 'https://diycode.b0.upaiyun.com/photo/2017/fc7727985fd40e43f6b5bd6192dc23b7.jpeg',
-        awards: [1,1,1,0,0],
-        totle: 102,
-        pnum: 11
-      },{
-        name: 'iPHONE6',
-        thumb: 'https://diycode.b0.upaiyun.com/photo/2017/fc7727985fd40e43f6b5bd6192dc23b7.jpeg',
-        awards: [1,1,1,0,0],
-        totle: 102,
-        pnum: 11
-      },{
-        name: 'iPHONE6',
-        thumb: 'https://diycode.b0.upaiyun.com/photo/2017/fc7727985fd40e43f6b5bd6192dc23b7.jpeg',
-        awards: [1,1,1,0,0],
-        totle: 102,
-        pnum: 11
-      },{
-        name: 'iPHONE6',
-        thumb: 'https://diycode.b0.upaiyun.com/photo/2017/fc7727985fd40e43f6b5bd6192dc23b7.jpeg',
-        awards: [1,1,1,0,0],
-        totle: 102,
-        pnum: 11
-      }],
+      storeRooms: {},
+      list: [],
       loading: false,
+      page: 1,
       loadMore: () => {
-        this.loading = true;
-        setTimeout(() => {
-          let last = this.list[this.list.length - 1];
-          for (let i = 1; i <= 10; i++) {
-            this.list.push({
-              name: 'iPHONE7',
-              thumb: 'https://diycode.b0.upaiyun.com/photo/2017/fc7727985fd40e43f6b5bd6192dc23b7.jpeg',
-              awards: [1,1,1,0,0],
-              totle: 102,
-              pnum: 11
-            });
-          }
-          this.loading = false;
-        }, 500);
-      }   
+        this.getRooms();
+      }
     }
+  },
+  created() {
+    this.getRooms();
   },
   components: {
     RoomCell
   },
   methods: {
- 
+    
+    getRooms() {
+      if(this.loading) return;
+
+      this.loading = true;
+      let apiToken = this.$cookie.get('clickme-apiToken');
+      let page = this.page;
+
+      this.$store.dispatch('fetchRoomList', {
+        page,
+        apiToken
+      })
+      .then((data) => {
+        if(data.code && data.rooms.length > 0) {
+          this.storeRooms = _.indexBy(this.list, '_id');;
+          let newRooms = _.indexBy(data.rooms, '_id');
+          _.extend(this.storeRooms, newRooms);
+          this.list = _.values(this.storeRooms);
+          if(data.rooms.length === 10) {
+            this.page++;
+          }
+        }
+
+        setTimeout(() => {
+          this.loading = false;
+        }, 2000);
+      });
+    }
   }
 }
 </script>

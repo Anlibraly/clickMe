@@ -11,6 +11,7 @@ const store = new Vuex.Store({
         nowRoom: null,
         conversation: [],
         cookies: {},
+        token: null,
         socket: null,
         messages: [],
         user: null

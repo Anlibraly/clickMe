@@ -34,11 +34,24 @@ exports.servers = {
         log_file: './logs/socket_log.log',
         node_args: '--harmony',
         max_memory_restart: '300M'
-    }
+    },
+    task: {
+        name: 'task',
+        script: './product/server/process/task/master.js',
+        log_date_format: 'YYYY-MM-DD HH:mm:ss',
+        exec_mode: 'cluster',
+        instances: 1,
+        out_file: './logs/task_out.log',
+        error_file: './logs/task_err.log',
+        log_file: './logs/task_log.log',
+        node_args: '--harmony',
+        max_memory_restart: '300M'
+    },
 };
 
 exports.ports = {
     data: g.SERVER_PORT.DATA,
     api: g.SERVER_PORT.API,
-    socket: g.SERVER_PORT.SOCKET
+    socket: g.SERVER_PORT.SOCKET,
+    task: g.SERVER_PORT.TASK
 };

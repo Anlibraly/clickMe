@@ -14,6 +14,7 @@ Promise.resolve()
             true,
             action,
             require('./services/db.js'),
+            require('./services/cache.js')
         ]);
 
     })

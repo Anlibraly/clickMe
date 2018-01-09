@@ -1,6 +1,7 @@
 let conf = require('../../../common/conf');
 let msg = require('../../../common/msg');
-// let _ = require('underscore');
+let g = require('../../../common/const');
+let _ = require('underscore');
 let jwt = require('koa-jwt');
 let md5 = require('md5');
 
@@ -66,7 +67,7 @@ module.exports = (router) => {
 
                     let hasResult = (result.list && result.list.length);
                     let user = null;
-                    
+
                     if (hasResult && result.list[0]) {
 
                         user = result.list[0];
@@ -107,6 +108,131 @@ module.exports = (router) => {
                         };
 
                     }
+
+                })
+                .catch((err) => {
+
+                    console.log(`[error] ${err.message}\n${err.stack}`);
+
+                    this.body = {
+
+                        code: -1,
+                        desc: `[error] ${err.message}\n${err.stack}`
+                    };
+
+                });
+
+        })
+        .post('/room/list', function* () {
+
+            yield Promise.resolve()
+                .then(() => getThroughDataProc('db', 'query', {
+                    _key: 'room',
+                    status: 1,
+                    _page: this.request.body.page,
+                    _size: g.ROOM_PER_PAGE
+                }))
+                .then((result) => {
+
+                    let hasResult = (result.list && result.list.length);
+                    let rooms = [],
+                        aids = [],
+                        rcache = [],
+                        rids = [],
+                        rewards = {};
+
+                    if (hasResult) {
+
+                        _.each(result.list, r => {
+
+                            rooms.push({
+                                _id: r._id,
+                                name: r.name,
+                                thumb: r.thumb,
+                                player: r.player,
+                                rewardid: r.rewardid
+                            });
+
+                            aids.push(r.rewardid);
+                            rcache.push(`rpeos_${r._id}`);
+                            rids.push(r._id);
+
+                        });
+
+                        return getThroughDataProc('cache', 'query', {
+                            _key: rcache
+                        })
+                        .then((rlist) => (rcache = rlist || {}))
+                        .then(() => getThroughDataProc('db', 'query', {
+                            _key: 'reward',
+                            _id: `~=${_.uniq(aids).join(';')}`
+                        }))
+                        .then((rew_result) => {
+
+                            if (rew_result.list && rew_result.list.length > 0) {
+
+                                rewards = _.indexBy(rew_result.list, '_id');
+
+                            }
+                            
+                        })
+                        .then(() => getThroughDataProc('db', 'query', {
+                            _key: 'riddle',
+                            roomid: `~=${_.uniq(rids).join(';')}`,
+                            status: 0
+                        }))
+                        .then((rew_result) => {
+
+                            let riddle = {};
+
+                            if (rew_result.list && rew_result.list.length > 0) {
+
+                                riddle = _.indexBy(rew_result.list, 'roomid');
+
+                            }
+
+                            _.each(rooms, room => {
+
+                                room.pnum = +rcache[`rpeos_${room._id}`] || 0;
+                                if (rewards[room.rewardid]) {
+
+                                    room.name += `_${rewards[room.rewardid].name}`;
+                                    room.totle = rewards[room.rewardid].winnum;
+
+                                } else {
+
+                                    room.name += '_神秘奖品';
+                                    room.totle = 0;
+
+                                }
+
+                                if (riddle[room._id]) {
+
+                                    room.awards = `${+riddle[room._id].answer.toString(2)}${(1 << +room.player).toString(2).slice(1)}`.slice(0, +room.player);
+
+                                } else {
+
+                                    room.awards = `${(1 << +room.player).toString(2).slice(1)}`;
+
+                                }
+
+                                delete room.rewardid;
+                                
+                            });
+
+                            this.body = {
+                                code: 1,
+                                rooms
+                            };
+
+                        });
+
+                    }
+
+                    this.body = {
+                        code: 0,
+                        desc: '没有更多房间'
+                    };
 
                 })
                 .catch((err) => {
@@ -172,7 +298,7 @@ module.exports = (router) => {
 
         })
         .get('/admin/custom/:cid', function* () {
-            
+
             let customs,
                 qs = {
                     _key: 'custom',

@@ -4,7 +4,7 @@ export default {
 
         state.nowRoom = room;
         this.$cookie.set('room', JSON.stringify(room), {
-            expidata: '2h'
+            expires: '2h'
         });
 
     },
