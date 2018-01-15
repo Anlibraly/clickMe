@@ -1,6 +1,7 @@
 let g = require('../../common/const');
 let msg = require('../../common/msg');
 let conf = require('../../common/conf');
+let roomMethods = require('./room');
 let jwt = require('koa-jwt');
 let _ = require('underscore');
 let pmid = process.env.pm_id;
@@ -59,6 +60,16 @@ let socketReq = (req, socket) => {
 
 };
 
+let roomReq = (req, socket) => {
+
+    if (req.target && roomMethods[req.target]) {
+
+        roomMethods[req.target](req, socket, io);
+
+    }
+
+};
+
 let socketServer = () => {
 
     io.on('connection', (socket) => {
@@ -114,10 +125,50 @@ let socketServer = () => {
 
         socket.on('room', (req) => {
 
-            io.sockets.emit('intoRoom', {
-                name: req.name,
-                time: +new Date()
-            });
+            let pass = true;
+
+            if (conf.apiTokenNeedVerify === 'true') {
+
+                if (!req.apiToken) {
+
+                    pass = false;
+
+                } else {
+
+                    try {
+
+                        // should like { uid: [uid], iat: 1470116394, exp: 1470202794 }
+                        pass = jwt.verify(req.apiToken, conf.apiTokenSecretKey, {});
+                        // attach msg to xmsg log
+                        let action = req.target || 'none';
+
+                        req._attach = `action [${action}], (UID: ${pass.uid})`;
+
+                    } catch (e) {
+
+                        console.warn(`Socket: ${e.message}\n${e.stack}`);
+                        pass = false;
+
+                    }
+
+                }
+
+            }
+
+            if (pass) {
+
+                roomReq(req, socket);
+
+            } else {
+
+                socket.emit(`res_${req.id || ''}`, {
+                    res: {
+                        status: false,
+                        msg: '401 Authorization failed'
+                    }
+                });
+
+            }
 
         });
 

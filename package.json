@@ -1,5 +1,5 @@
 {
-  "name": "clickMe",
+  "name": "clickme",
   "description": "A click simple game",
   "version": "1.0.0",
   "author": "",
@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "start": "pm2 start product/server/launcher.js",
-    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules && gulp build"
+    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules && gulp build && gulp watch"
   },
   "dependencies": {
     "axios": "^0.17.1",

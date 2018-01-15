@@ -5,22 +5,17 @@ const header                = require('gulp-header');
 const eslint                = require('gulp-eslint');
 const cached                = require('gulp-cached');
 const size                  = require('gulp-size');
-const less                  = require('gulp-less');
-const concat                = require('gulp-concat');
-const minify                = require('gulp-minify-css');
-const handlebars            = require('gulp-compile-handlebars');
-const rename                = require('gulp-rename');
-const marked                = require('marked');
+const exec                 = require('child_process').exec;
 
 let babelOption = {
-    presets : [
+    presets: [
         'es2015',
         'stage-2'
     ],
-    plugins : ['rewire'],
-    env : {
-        cover : {
-            plugins : ['istanbul']
+    plugins: ['rewire'],
+    env: {
+        cover: {
+            plugins: ['istanbul']
         }
     }
 };
@@ -28,70 +23,85 @@ let babelOption = {
 let headerContent = '"use strict";require("babel-polyfill");\n//mixin head end\n\n';
 
 let buildScript = (name, src) =>
-    gulp.src( src )
-        .pipe( eslint() )
-        .pipe( eslint.format() )
-        .pipe( cached(`server`) )
-        .pipe( babel(babelOption) )
-        .pipe( header(headerContent) )
-        .pipe( size({
-            title : `server`
-        }) )
-        .pipe( gulp.dest(`product/server/`) );
-
+    gulp.src(src)
+        .pipe(eslint())
+        .pipe(eslint.format())
+        .pipe(cached(`server`))
+        .pipe(babel(babelOption))
+        .pipe(header(headerContent))
+        .pipe(size({
+            title: `server`
+        }))
+        .pipe(gulp.dest(`product/server/`));
 
 let buildAppScript = (name, src) =>
     gulp.src(src)
-        .pipe( gulp.dest(`product/app/`) );
+        .pipe(gulp.dest(`product/app/`));
 
 let buildHtmlScript = (name, src) =>
     gulp.src(src)
-        .pipe( gulp.dest(`product/app/`) );
+        .pipe(gulp.dest(`product/app/`));
 
 let buildTestScript = (name, src) =>
     gulp.src(src)
-        .pipe( eslint() )
-        .pipe( eslint.format() )
-        .pipe( cached(`test`) )
-        .pipe( babel(babelOption) )
-        .pipe( header(headerContent) )
-        .pipe( size({
-            title : `test`
-        }) )
-        .pipe( gulp.dest(`lib/test/`) );
+        .pipe(eslint())
+        .pipe(eslint.format())
+        .pipe(cached(`test`))
+        .pipe(babel(babelOption))
+        .pipe(header(headerContent))
+        .pipe(size({
+            title: `test`
+        }))
+        .pipe(gulp.dest(`lib/test/`));
 
 let gulpTasks = {
 
-    buildSrc : () => {
+    buildSrc: () => {
 
-        buildScript('src', ['server/*.js','server/**/*.js','server/**/**/*.js']);
+        buildScript('src', ['server/*.js', 'server/**/*.js', 'server/**/**/*.js']);
     
     },
 
-    buildApp : () => {
+    buildApp: () => {
         
         buildAppScript('app', ['app/**']);
         
     },
 
-    buildHtml : () => {
+    buildHtml: () => {
         
         buildHtmlScript('front', ['./*.html']);
         
     },
 
-    buildTest : () => {
+    buildTest: () => {
 
         buildTestScript('test', ['test/*.js']);
 
     },
 
-    build : ['buildSrc', 'buildHtml'],
+    webpackTask: () => {
 
-    watch : () => {
+        exec('webpack --progress --hide-modules', (err, stdout) => {
 
-        gulp.watch('server/*', ['buildSrc']);
-        gulp.watch('app/*', ['buildApp']);
+            if (err) {
+
+                throw err;
+
+            }
+
+            console.log(stdout);
+
+        });
+
+    },
+
+    build: ['buildSrc', 'buildHtml'],
+
+    watch: () => {
+
+        gulp.watch(['server/*.js', 'server/**/*.js', 'server/**/**/*.js'], ['buildSrc']);
+        gulp.watch('src/*', ['webpackTask']);
 
     }
 
