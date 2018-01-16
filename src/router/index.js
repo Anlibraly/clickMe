@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import login from '../components/auth/login';
 import roomList from '../components/room/list';
+import detial from '../components/room/detail';
 // import Management from '../components/main/management/Management';
 // import Timeline from '../components/main/time_show/Timeline';
 // import TimeSlide from '../components/main/time_show/TimeSlide';
@@ -14,16 +15,12 @@ const router = new Router({
         {
             path: '/login',
             component: login
-        },
-        {
+        }, {
             path: '/room',
             component: roomList,
-            children: [
-                {
-                    path: 'list',
-                    component: roomList
-                }
-            ]
+        }, {
+            path: '/detail',
+            component: detial,
         }, {
             path: '/',
             redirect: '/room'

@@ -60,17 +60,19 @@ let socketReq = (req, socket) => {
 
 };
 
-let roomReq = (req, socket) => {
+let roomReq = (req, socket, uid) => {
 
     if (req.target && roomMethods[req.target]) {
 
-        roomMethods[req.target](req, socket, io);
+        roomMethods[req.target](req, socket, io, uid);
 
     }
 
 };
 
 let socketServer = () => {
+
+    let uid = '';
 
     io.on('connection', (socket) => {
 
@@ -144,6 +146,10 @@ let socketServer = () => {
 
                         req._attach = `action [${action}], (UID: ${pass.uid})`;
 
+                        uid = pass.uid;
+
+                        console.log(req._attach);
+
                     } catch (e) {
 
                         console.warn(`Socket: ${e.message}\n${e.stack}`);
@@ -157,7 +163,7 @@ let socketServer = () => {
 
             if (pass) {
 
-                roomReq(req, socket);
+                roomReq(req, socket, uid);
 
             } else {
 
@@ -230,9 +236,9 @@ if (pmid || pmid === 0) {
                 res();
 
             },
-            remoteLogoutUser: (uid, res) => {
+            remoteLogoutUser: (id, res) => {
 
-                io.sockets.emit('remoteLogoutUser', uid);
+                io.sockets.emit('remoteLogoutUser', id);
                 res();
 
             },
