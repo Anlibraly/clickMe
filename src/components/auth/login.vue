@@ -60,7 +60,7 @@ export default {
 	},
 	created () { // 进入该界面之后 如果已登录 跳转
 		if (this.$cookie.get('clickme-apiToken')) {
-			this.$router.replace("/detail");
+			this.$router.replace("/room");
 		}
 	}
 }

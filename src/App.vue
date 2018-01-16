@@ -21,7 +21,7 @@ export default {
 
       this.$store.state.token = this.$cookie.get('clickme-apiToken');
 
-      this.$router.replace("/detail");
+      this.$router.replace("/room");
 
 		}
 	}
