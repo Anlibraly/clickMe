@@ -14,11 +14,6 @@ let responseCB = res => {
 };
 
 export default {
-    intoRoom: ({commit, socket}, {roomId, apiToken}) =>
-        socket.emit('room', {
-            roomId,
-            apiToken
-        }),
     searchRoom: query =>
         axios.get('/api/room/search', {
             params: query

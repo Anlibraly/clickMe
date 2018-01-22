@@ -21,9 +21,15 @@ socket.on('reward', (msg) => {
 
 });
 
-socket.on('intoRoom', (res) => {
+socket.on('sys', (res) => {
 
-    console.log(res.name, res.time);
+    console.log('system info: ', res);
+
+});
+
+socket.on('chat', (res) => {
+
+    store.state.conversation.push(res);
 
 });
 

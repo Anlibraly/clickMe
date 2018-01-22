@@ -127,9 +127,9 @@ let socketServer = () => {
 
         socket.on('room', (req) => {
 
-            let pass = true;
+            let pass = false;
 
-            if (conf.apiTokenNeedVerify === 'true') {
+            if (conf.apiTokenNeedVerify) {
 
                 if (!req.apiToken) {
 

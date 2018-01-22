@@ -5,7 +5,8 @@
             infinite-scroll-disabled="loading"
             infinite-scroll-distance="10">
             <li v-for="rdata in list"
-                v-bind:key="rdata">
+                v-bind:key="rdata"
+                v-on:click="joinIn(rdata._id)">
                     <div class="title">{{rdata.name}}</div>
                     <img v-bind:src="rdata.thumb"/>
                     <div class="cblock">
@@ -34,7 +35,9 @@ export default {
     },
     data() {
         return {
-
+            joinIn: (id) => {
+                this.$router.replace(`/detail?id=${id}`);
+            }
         }
     },
     methods: {
