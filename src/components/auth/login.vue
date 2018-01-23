@@ -59,6 +59,7 @@ export default {
 		}
 	},
 	created () { // 进入该界面之后 如果已登录 跳转
+		this.$store.state.backAction = () => {};
 		if (this.$cookie.get('clickme-apiToken')) {
 			this.$router.replace("/room");
 		}

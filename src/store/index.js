@@ -14,7 +14,8 @@ const store = new Vuex.Store({
         token: null,
         socket: null,
         messages: [],
-        user: null
+        user: null,
+        backAction: () => {}
     },
     actions,
     mutations

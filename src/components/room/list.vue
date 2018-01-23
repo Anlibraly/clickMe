@@ -23,6 +23,7 @@ export default {
     }
   },
   created() {
+    this.$store.state.backAction = () => {};
     this.getRooms();
   },
   components: {

@@ -31,13 +31,20 @@ export default {
   },
   created() {
     let apiToken = this.$cookie.get('clickme-apiToken');
-
     this.$store.state.socket.emit('room', {
       apiToken,
       target: 'intoRoom',
       roomId: 1
     });
 
+    this.$store.state.backAction = () => {
+      this.$store.state.socket.emit('room', {
+        apiToken,
+        target: 'exitRoom',
+        roomId: 1
+      });
+      this.$router.replace(`/room`);
+    };
   },
   components: {
 
