@@ -9,6 +9,7 @@ const store = new Vuex.Store({
     state: {
         login: null,
         nowRoom: null,
+        answers: [],
         conversation: [],
         cookies: {},
         token: null,

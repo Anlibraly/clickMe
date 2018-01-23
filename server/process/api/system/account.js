@@ -207,7 +207,8 @@ module.exports = (router) => {
                                 }
 
                                 if (riddle[room._id]) {
-
+                                    
+                                    // 当前选择的答案后补齐n位剩余的0
                                     room.awards = `${+riddle[room._id].answer.toString(2)}${(1 << +room.player).toString(2).slice(1)}`.slice(0, +room.player);
 
                                 } else {

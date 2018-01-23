@@ -7,6 +7,7 @@ import router from './router';
 import store from './store';
 import VueCookie from 'vue-cookie';
 import sockets from './store/sockets';
+import _ from 'underscore';
 
 Vue.use(VueCookie);
 Vue.use(MintUI);
@@ -15,9 +16,16 @@ let socket = sockets.connect();
 
 socket.on('reward', (msg) => {
 
-    store.state.messages.push(msg);
+    // store.state.messages.push(msg);
+    let answers = JSON.parse(msg);
 
-    console.log(msg);
+    while (store.state.answers.length) {
+
+        store.state.answers.pop();
+
+    }
+
+    _.each(answers, v => store.state.answers.push(v));
 
 });
 

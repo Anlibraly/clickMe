@@ -17,7 +17,6 @@ let intoRoom = (req, socket, io, uid) => {
             }
 
             // => [Anw2LatarvGVVXEIAAAD]
-            console.log(clients);
             io.to(`r_${req.roomId}`).emit('sys', `${uid}加入了房间,房间人数：${clients.length}`);
 
         });
@@ -45,7 +44,6 @@ let exitRoom = (req, socket, io, uid) => {
                 }
     
                 // => [Anw2LatarvGVVXEIAAAD]
-                console.log(clients);
                 io.to(`r_${req.roomId}`).emit('sys', `${uid}离开了房间,房间人数：${clients.length}`);
                 
             });
@@ -62,14 +60,28 @@ let chat = (req, socket, io, uid) => {
 
         let rooms = _.keys(socket.rooms);
 
-        console.log(rooms);
-
         if (rooms.indexOf(`r_${req.roomId}`) >= 0) {
 
             io.to(`r_${req.roomId}`).emit('chat', JSON.stringify({
                 from: uid,
                 content: req.content
             }));
+
+        }
+
+    }
+
+};
+
+let choice = (req, socket, io) => {
+
+    if (req.roomId) {
+
+        let rooms = _.keys(socket.rooms);
+
+        if (rooms.indexOf(`r_${req.roomId}`) >= 0) {
+
+            io.to(`r_${req.roomId}`).emit('reward', JSON.stringify([1, 0, 0, 1]));
 
         }
 
@@ -102,5 +114,6 @@ module.exports = {
     intoRoom,
     exitRoom,
     chat,
+    choice,
     countRoom
 };
