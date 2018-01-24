@@ -1,15 +1,11 @@
 let conf = require('../../../common/conf');
-let msg = require('../../../common/msg');
 let g = require('../../../common/const');
+let tool = require('../../../common/tool');
 let _ = require('underscore');
 let jwt = require('koa-jwt');
 let md5 = require('md5');
 
 let makeToken = (token, timestamp) => md5(`${token}${timestamp}`);
-
-let getThroughDataProc = (type, optype, sendData) =>
-    msg.send(`data@${type}.${optype}`, sendData)
-        .then(({result}) => Promise.resolve(result));
 
 module.exports = (router) => {
 
@@ -58,7 +54,7 @@ module.exports = (router) => {
         .post('/account/login', function* () {
 
             yield Promise.resolve()
-                .then(() => getThroughDataProc('db', 'query', {
+                .then(() => tool.getThroughDataProc('db', 'query', {
                     _key: 'user',
                     username: this.request.body.username,
                     password: this.request.body.password
@@ -126,7 +122,7 @@ module.exports = (router) => {
         .post('/room/list', function* () {
 
             yield Promise.resolve()
-                .then(() => getThroughDataProc('db', 'query', {
+                .then(() => tool.getThroughDataProc('db', 'query', {
                     _key: 'room',
                     status: 1,
                     _page: this.request.body.page,
@@ -159,11 +155,11 @@ module.exports = (router) => {
 
                         });
 
-                        return getThroughDataProc('cache', 'query', {
+                        return tool.getThroughDataProc('cache', 'query', {
                             _key: rcache
                         })
                         .then((rlist) => (rcache = rlist || {}))
-                        .then(() => getThroughDataProc('db', 'query', {
+                        .then(() => tool.getThroughDataProc('db', 'query', {
                             _key: 'reward',
                             _id: `~=${_.uniq(aids).join(';')}`
                         }))
@@ -176,7 +172,7 @@ module.exports = (router) => {
                             }
                             
                         })
-                        .then(() => getThroughDataProc('db', 'query', {
+                        .then(() => tool.getThroughDataProc('db', 'query', {
                             _key: 'riddle',
                             roomid: `~=${_.uniq(rids).join(';')}`,
                             status: 0
@@ -209,13 +205,16 @@ module.exports = (router) => {
                                 if (riddle[room._id]) {
                                     
                                     // 当前选择的答案后补齐n位剩余的0
-                                    room.awards = `${+riddle[room._id].answer.toString(2)}${(1 << +room.player).toString(2).slice(1)}`.slice(0, +room.player);
+
+                                    room.awards = tool.turnAnswer(riddle[room._id].answer, riddle[room._id].ansindex, riddle[room._id].len);
 
                                 } else {
 
                                     room.awards = `${(1 << +room.player).toString(2).slice(1)}`;
 
                                 }
+                                
+                                room.awards = _.map(room.awards, v => +v);
 
                                 delete room.rewardid;
                                 
@@ -277,7 +276,7 @@ module.exports = (router) => {
             }
 
             yield Promise.resolve()
-                .then(() => getThroughDataProc('db', 'query', qs))
+                .then(() => tool.getThroughDataProc('db', 'query', qs))
                 .then((result) => {
 
                     this.body = {
@@ -307,7 +306,7 @@ module.exports = (router) => {
                 };
 
             yield Promise.resolve()
-                .then(() => getThroughDataProc('db', 'query', qs))
+                .then(() => tool.getThroughDataProc('db', 'query', qs))
                 .then((result) => {
 
                     let read = result.list[0].read;
@@ -320,7 +319,7 @@ module.exports = (router) => {
 
                     customs = result;
 
-                    return getThroughDataProc('db', 'save', {
+                    return tool.getThroughDataProc('db', 'save', {
                         _key: 'custom',
                         _save: [{
                             _id: +this.params.cid,

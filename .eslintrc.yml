@@ -144,13 +144,13 @@ rules:
       after: true
   max-depth:
     - error
-    - max: 4
+    - max: 5
   max-nested-callbacks:
     - error
-    - max: 4
+    - max: 5
   max-params:
     - error
-    - max: 4
+    - max: 5
   max-statements-per-line:
     - error
     - max: 3
@@ -172,8 +172,6 @@ rules:
   no-inline-comments:
     - error
   no-lonely-if:
-    - error
-  no-mixed-operators:
     - error
   no-mixed-spaces-and-tabs:
     - error

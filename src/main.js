@@ -17,7 +17,9 @@ let socket = sockets.connect();
 socket.on('reward', (msg) => {
 
     // store.state.messages.push(msg);
-    let answers = JSON.parse(msg);
+    let answers = msg;
+
+    console.log(msg);
 
     while (store.state.answers.length) {
 
@@ -25,7 +27,7 @@ socket.on('reward', (msg) => {
 
     }
 
-    _.each(answers, v => store.state.answers.push(v));
+    _.each(answers, v => store.state.answers.push(+v));
 
 });
 

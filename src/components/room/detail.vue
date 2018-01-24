@@ -34,7 +34,7 @@ export default {
       //console.log('new cons', curVal);
     },
     answers(curVal, oldVal) {
-      //console.log('new ans', curVal);
+      console.log('new ans', curVal);
     }
   },
   created() {
